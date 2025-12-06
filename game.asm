@@ -52,6 +52,30 @@ int 0x10
 push V_MEMORY
 pop es
 
+;; Initializing
+
+mov di, textures
+mov si, sprite_bmps
+mov cl, 6
+rep movsw
+
+lodsd
+mov cl, 5
+rep stosd
+
+mov cl, 5
+rep movsb
+
+xor ax, ax
+mov cl, 4
+rep stosw
+
+mov cl, 7
+rep movsb
+
+push es
+pop ds
+
 ;; Main Game Loop
 
 game_loop:
@@ -103,6 +127,21 @@ sprite_bmps:
     db 01111110b
     db 11100111b
     db 11100111b
+
+    ;; Variables
+
+    dw 0x0FFFF
+    dw 0x0FFFF
+
+    db 70
+
+    dw 0x230A
+    db 0x20
+
+    db 0x0FB
+    
+    dw 18
+    db 1
 
 section boot_section start=0x7DFE
 dw 0xAA55
