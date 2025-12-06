@@ -87,12 +87,48 @@ game_loop:
 
     ;; TODO: Game Logic
 
+    mov si, enemy_array
+    mov bl, ENEMY_COLOR
+    mov ax, [si+13]
+    cmp byte [si+19], cl
+
+    mov cl, 4
+    jg draw_enemy_rutine
+
+    add di, cx
+
+    draw_enemy_rutine:
+        pusha
+        mov cl, 8
+
+        .check_next:
+            pusha
+
+            dec cx
+            bt [si], cx
+            
+            jnc .next_enemy
+
+            mov si, di
+            call draw_texture
+
+            .next_enemy:
+                popa
+                add ah, TEXTURE_WIDTH+4
+        loop .check_next
+        popa
+
+        add al, TEXTURE_HEIGHT+2
+        inc si
+
+    loop draw_enemy_rutine
+
     tick_timer:
-        mov ax, [TIMER]
+        mov ax, [CS:TIMER]
         inc ax
 
         .timer_func_wait:
-            cmp [TIMER], ax
+            cmp [CS:TIMER], ax
             jl .timer_func_wait
 
 jmp game_loop
@@ -101,10 +137,46 @@ game_cleanup:
     cli
     hlt
 
+;; Parameters: si adress, al y, ah x, bl color
 draw_texture:
+    call get_screen_position
+    mov cl, TEXTURE_HEIGHT
+
+    .next_line:
+        push cx
+        lodsb
+        xchg ax, dx
+        mov cl, TEXTURE_WIDTH
+
+        .next_px:
+            xor ax, ax
+            dec cx
+            bt dx, cx
+
+            cmovc ax, bx
+            mov ah, al
+
+            mov [di+WIDTH], ax
+            stosw
+        
+        jnz .next_px
+        add di, WIDTH*2-TEXTURE_WIDTH_PX
+        pop cx
+
+    loop .next_line
+
     ret
 
+;; Parameters: al y, ah x
 get_screen_position:
+    mov dx, ax
+    cbw
+    
+    imul di, ax, WIDTH*2
+    mov al, dh
+    shl ax, 1
+    add di, ax
+
     ret
 
 sprite_bmps:
