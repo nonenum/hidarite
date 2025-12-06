@@ -11,11 +11,21 @@ pop es
 ;; Main Game Loop
 
 game_loop:
-    mov al, 0x04
+    xor ax, ax
+    xor di, di
     mov cx, 320*200
 
-    xor di, di
     rep stosb
+
+    ;; TODO: Game Logic
+
+    tick_timer:
+        mov ax, [0x046C]
+        inc ax
+
+        .timer_func_wait:
+            cmp [0x046C], ax
+            jl .timer_func_wait
 
 jmp game_loop
 
