@@ -4,4 +4,6 @@
 
 I've officially gone mad
 
-~lmao~
+❤꧁ღ⊱♥**lmao**♥⊱ღ꧂❤
+
+![Reasonable Reaction](asm_banner.png "Reasonable Reaction")
