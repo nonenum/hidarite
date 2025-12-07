@@ -30,8 +30,7 @@ HEIGHT equ 200
 V_MEMORY equ 0x0A000
 TIMER equ 0x046C
 
-BARRIER_START_X equ 22
-BARRIER_Y equ 85
+BARRIER_POS equ 0x1655
 PLAYER_Y equ 93
 
 TEXTURE_HEIGHT equ 4
@@ -122,6 +121,31 @@ game_loop:
         inc si
 
     loop draw_enemy_rutine
+
+    lodsb
+    push si
+
+    mov si, player
+    mov ah, PLAYER_Y
+    xchg ah, al
+    mov bl, PLAYER_COLOR
+
+    call draw_texture
+
+    mov bl, BARRIER_COLOR
+    mov ax, BARRIER_POS
+
+    mov cl, 5
+    draw_barrier_rutine:
+        pusha
+        call draw_texture
+        popa
+
+        add ah, 25
+        add si, TEXTURE_HEIGHT
+    loop draw_barrier_rutine
+
+    pop si
 
     tick_timer:
         mov ax, [CS:TIMER]
