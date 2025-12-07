@@ -31,6 +31,8 @@ V_MEMORY equ 0x0A000
 TIMER equ 0x046C
 
 BARRIER_POS equ 0x1655
+BARRIER_X equ 0x06
+BARRIER_Y equ 0x55
 PLAYER_Y equ 93
 
 TEXTURE_HEIGHT equ 4
@@ -146,6 +148,64 @@ game_loop:
     loop draw_barrier_rutine
 
     pop si
+
+    mov cl, 4
+    get_projectile:
+        push cx
+
+        lodsw
+        cmp al, 0
+        jnz check_projectile
+        
+        next_shot:
+            pop cx
+    loop get_projectile
+
+    jmp create_enemy_projectiles
+
+    check_projectile:
+        call get_screen_position
+        mov al, [di]
+
+        cmp al, PLAYER_COLOR
+        je game_cleanup
+
+        xor bx, bx
+
+        cmp al, BARRIER_COLOR
+        jne .check_enemy_hit
+
+        mov bx, barrier_array
+        mov ah, BARRIER_X+TEXTURE_WIDTH 
+
+        .check_barrier_rutine:
+            cmp dh, ah
+            ja .next_barrier
+
+            sub ah, TEXTURE_HEIGHT
+            sub dh, ah
+
+            pusha
+            sub dl, BARRIER_Y
+            add bl, dl
+
+            mov al, 7
+            sub al, dh
+            cbw
+            btr [bx], ax
+
+            mov byte [si-2], ah
+            popa
+            jmp next_shot
+
+            .next_barrier:
+                add ah, 25
+                add bl, TEXTURE_HEIGHT
+        jmp .check_barrier_rutine
+
+        .check_enemy_hit:
+
+    create_enemy_projectiles:
 
     tick_timer:
         mov ax, [CS:TIMER]
