@@ -207,6 +207,33 @@ game_loop:
 
     create_enemy_projectiles:
 
+    ;; INPUTS: L_SHIFT ALT R_SHIFT
+
+    get_inputs:
+        mov si, player_x
+        mov ah, 0x02
+        int 0x16
+
+        test al, 1
+        jz .check_leftshft
+
+        add byte [si], ah
+
+        .check_leftshft:
+            test al, 2
+            jz .check_alt
+
+            sub byte [si], ah
+
+        .check_alt:
+            test al, 8
+            jz tick_timer
+
+            lodsb
+            xchg ah, al
+            add ax, 0x035A
+            mov [si], ax
+
     tick_timer:
         mov ax, [CS:TIMER]
         inc ax
