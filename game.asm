@@ -31,7 +31,7 @@ V_MEMORY equ 0x0A000
 TIMER equ 0x046C
 
 BARRIER_POS equ 0x1655
-BARRIER_X equ 0x06
+BARRIER_X equ 0x16
 BARRIER_Y equ 0x55
 PLAYER_Y equ 93
 
@@ -204,6 +204,30 @@ game_loop:
         jmp .check_barrier_rutine
 
         .check_enemy_hit:
+
+    render_projectile:
+        mov bh, PLAYER_PROJECTILE
+        mov al, [si-2]
+
+        dec ax
+        cmp cl, 4
+        je .render
+
+        mov bh, ENEMY_PROJECTILE
+        inc ax
+        inc ax
+
+        cmp al, HEIGHT/2
+        cmovge ax, bx
+
+        .render:
+            mov byte [si-2], al
+            mov bl, bh
+            xchg ax, bx
+            mov [di+WIDTH], ax
+            stosw
+
+        jmp next_shot
 
     create_enemy_projectiles:
 
