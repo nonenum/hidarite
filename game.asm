@@ -267,6 +267,30 @@ game_loop:
         jmp next_shot
 
     create_enemy_projectiles:
+        sub si, 6
+        mov cl, 3
+
+        .check_shot:
+            mov di, si
+            lodsw
+
+            cmp al, 0
+            jg .next_shot
+
+            mov ax, [CS:TIMER]
+            and ax, 0x0007
+            imul ax, ax, TEXTURE_WIDTH+4
+            xchg ah, al
+
+            add ax, [enemy_y]
+            stosw
+
+            jmp move_enemy
+
+            .next_shot:
+        loop .check_shot
+
+    move_enemy:
 
     ;; INPUTS: L_SHIFT ALT R_SHIFT
 
@@ -306,8 +330,11 @@ game_loop:
 jmp game_loop
 
 game_cleanup:
-    cli
-    hlt
+    xor ax, ax
+    int 0x16
+    
+    jmp 0x0FFFF:0x0000
+    ;; int 0x19     | Takes up less bytes, but isn't general purpose
 
 ;; Parameters: si adress, al y, ah x, bl color
 draw_texture:
