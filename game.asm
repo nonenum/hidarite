@@ -204,6 +204,43 @@ game_loop:
         jmp .check_barrier_rutine
 
         .check_enemy_hit:
+            cmp cl, 4
+            jne render_projectile
+
+            cmp al, ENEMY_COLOR
+            jne render_projectile
+
+            mov bx, enemy_array
+            mov ax, [bx+13]
+            add al, TEXTURE_HEIGHT
+
+            .get_enemy_row:
+                cmp dl, al
+                jg .next_row
+
+                mov cl, 8
+                add ah, TEXTURE_WIDTH
+                .get_enemy:
+                    dec cx
+                    cmp dh, ah
+                    ja .next_enemy
+
+                    btr [bx], cx
+                    mov byte [si-2], 0
+                    dec byte [si+8]
+
+                    jz game_cleanup
+                    jmp next_shot
+
+                    .next_enemy:
+                        add ah, TEXTURE_WIDTH+4
+
+                jmp .get_enemy
+
+                .next_row:
+                    add al, TEXTURE_HEIGHT+2
+                    inc bx
+            jmp .get_enemy_row
 
     render_projectile:
         mov bh, PLAYER_PROJECTILE
