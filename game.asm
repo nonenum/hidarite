@@ -86,7 +86,7 @@ game_loop:
 
     rep stosb
 
-    ;; TODO: Game Logic
+    ;; Game Logic
 
     mov si, enemy_array
     mov bl, ENEMY_COLOR
@@ -117,11 +117,11 @@ game_loop:
                 popa
                 add ah, TEXTURE_WIDTH+4
         loop .check_next
+
         popa
 
         add al, TEXTURE_HEIGHT+2
         inc si
-
     loop draw_enemy_rutine
 
     lodsb
@@ -177,7 +177,6 @@ game_loop:
 
         mov bx, barrier_array
         mov ah, BARRIER_X+TEXTURE_WIDTH 
-
         .check_barrier_rutine:
             cmp dh, ah
             ja .next_barrier
@@ -213,7 +212,6 @@ game_loop:
             mov bx, enemy_array
             mov ax, [bx+13]
             add al, TEXTURE_HEIGHT
-
             .get_enemy_row:
                 cmp dl, al
                 jg .next_row
@@ -234,7 +232,6 @@ game_loop:
 
                     .next_enemy:
                         add ah, TEXTURE_WIDTH+4
-
                 jmp .get_enemy
 
                 .next_row:
@@ -291,7 +288,40 @@ game_loop:
         loop .check_shot
 
     move_enemy:
+        mov di, enemy_x
+        inc bp
+        cmp bp, [di+3]
 
+        jl get_inputs
+        neg byte [di+5]
+        xor bp, bp
+
+        mov al, [di+2]
+        add byte [di], al
+        
+        jg .check_sr_right
+
+        mov byte [di], cl
+        jmp .move_down
+
+        .check_sr_right:
+            mov al, 68
+            cmp [di], al
+            jle get_inputs
+
+            stosb
+            dec di
+
+        .move_down:
+            neg byte [di+2]
+            dec di
+            add byte [di], 5
+
+            cmp byte [di], BARRIER_Y
+            jg game_cleanup
+
+            dec byte [di+4]
+        
     ;; INPUTS: L_SHIFT ALT R_SHIFT
 
     get_inputs:
@@ -340,13 +370,11 @@ game_cleanup:
 draw_texture:
     call get_screen_position
     mov cl, TEXTURE_HEIGHT
-
     .next_line:
         push cx
         lodsb
         xchg ax, dx
         mov cl, TEXTURE_WIDTH
-
         .next_px:
             xor ax, ax
             dec cx
@@ -361,7 +389,6 @@ draw_texture:
         jnz .next_px
         add di, WIDTH*2-TEXTURE_WIDTH_PX
         pop cx
-
     loop .next_line
 
     ret
